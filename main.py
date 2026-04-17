@@ -12,7 +12,7 @@ import uuid
 # ==============================
 # CONFIG
 # ==============================
-DATABASE_URL = "postgresql://postgres:UdbbHUYlygeebUMuZbmOTHrEcOzHfRiq@postgres.railway.internal:5432/railway"
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 
 SECRET_KEY = "super_secret_key"
