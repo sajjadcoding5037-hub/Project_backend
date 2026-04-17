@@ -18,7 +18,7 @@ from jose import jwt, JWTError
 # ==============================
 # CONFIG (ENV-BASED)
 # ==============================
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_PUBLIC_URL")
 SECRET_KEY = os.getenv("SECRET_KEY", "dev_secret_key")  # fallback for local
 ALGORITHM = "HS256"
 
