@@ -16,10 +16,10 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 
 # ==============================
-# CONFIG (ENV-BASED)
+# CONFIG
 # ==============================
 DATABASE_URL = os.getenv("DATABASE_PUBLIC_URL")
-SECRET_KEY = os.getenv("SECRET_KEY", "dev_secret_key")  # fallback for local
+SECRET_KEY = os.getenv("SECRET_KEY", "dev_secret_key")
 ALGORITHM = "HS256"
 
 # ==============================
@@ -44,7 +44,6 @@ class User(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
 
-# ⚠️ OK for now (later → Alembic)
 Base.metadata.create_all(bind=engine)
 
 # ==============================
@@ -57,6 +56,37 @@ def hash_password_auth(password: str):
 
 def verify_password_auth(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
+
+# ==============================
+# TEST USER CREATION (MOVE UP)
+# ==============================
+def create_test_user_on_startup():
+    db = SessionLocal()
+
+    try:
+        test_username = "admin"
+        test_password = "admin123"
+
+        existing_user = db.query(User).filter(User.username == test_username).first()
+
+        if not existing_user:
+            print("⚡ Creating test user...")
+
+            new_user = User(
+                id=str(uuid.uuid4()),
+                username=test_username,
+                password=hash_password_auth(test_password)
+            )
+
+            db.add(new_user)
+            db.commit()
+
+            print("✅ Test user created: admin / admin123")
+        else:
+            print("ℹ️ Test user already exists")
+
+    finally:
+        db.close()
 
 # ==============================
 # JWT TOKEN
@@ -81,14 +111,16 @@ def verify_token_auth(token: str):
 # FASTAPI APP
 # ==============================
 app = FastAPI()
+
+# ✅ SAFE CALL (NOW FUNCTION EXISTS)
 create_test_user_on_startup()
 
 # ==============================
-# CORS (Frontend Fix)
+# CORS
 # ==============================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # tighten in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -105,7 +137,7 @@ def get_db_auth():
         db.close()
 
 # ==============================
-# AUTH SECURITY DEPENDENCY
+# AUTH DEPENDENCY
 # ==============================
 security = HTTPBearer()
 
@@ -127,7 +159,7 @@ def get_current_user_auth(
     return user
 
 # ==============================
-# REQUEST SCHEMAS
+# SCHEMAS
 # ==============================
 class SignupRequest(BaseModel):
     username: str
@@ -137,34 +169,8 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
-def create_test_user_on_startup():
-    db = SessionLocal()
-
-    try:
-        test_username = "admin"
-        test_password = "admin123"
-
-        existing_user = db.query(User).filter(User.username == test_username).first()
-
-        if not existing_user:
-            new_user = User(
-                id=str(uuid.uuid4()),
-                username=test_username,
-                password=hash_password_auth(test_password)
-            )
-
-            db.add(new_user)
-            db.commit()
-
-            print("✅ Test user created: admin / admin123")
-        else:
-            print("ℹ️ Test user already exists")
-
-    finally:
-        db.close()
-        
 # ==============================
-# SIGNUP API
+# SIGNUP
 # ==============================
 @app.post("/signup")
 def signup_user_auth(data: SignupRequest, db: Session = Depends(get_db_auth)):
@@ -185,7 +191,7 @@ def signup_user_auth(data: SignupRequest, db: Session = Depends(get_db_auth)):
     return {"message": "User created successfully"}
 
 # ==============================
-# LOGIN API
+# LOGIN
 # ==============================
 @app.post("/login")
 def login_user_auth(data: LoginRequest, db: Session = Depends(get_db_auth)):
@@ -208,7 +214,7 @@ def login_user_auth(data: LoginRequest, db: Session = Depends(get_db_auth)):
     }
 
 # ==============================
-# PROTECTED ROUTE (REAL SECURITY)
+# PROTECTED
 # ==============================
 @app.get("/protected")
 def protected_route(current_user: User = Depends(get_current_user_auth)):
