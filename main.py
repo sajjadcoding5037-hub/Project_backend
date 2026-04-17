@@ -199,6 +199,10 @@ def signup_user_auth(data: SignupRequest, db: Session = Depends(get_db_auth)):
 @app.post("/login")
 def login_user_auth(data: LoginRequest, db: Session = Depends(get_db_auth)):
 
+    print("🔍 Username:", data.username)
+    print("🔍 Password:", data.password)
+    print("🔍 Password length:", len(data.password))
+
     user = db.query(User).filter(User.username == data.username).first()
 
     if not user:
@@ -215,7 +219,6 @@ def login_user_auth(data: LoginRequest, db: Session = Depends(get_db_auth)):
         "access_token": token,
         "token_type": "bearer"
     }
-
 # ==============================
 # PROTECTED
 # ==============================
