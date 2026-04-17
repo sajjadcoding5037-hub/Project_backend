@@ -52,11 +52,14 @@ Base.metadata.create_all(bind=engine)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password_auth(password: str):
+    if len(password.encode("utf-8")) > 72:
+        password = password[:72]  # truncate safely
     return pwd_context.hash(password)
-
+    
 def verify_password_auth(plain_password: str, hashed_password: str):
+    if len(plain_password.encode("utf-8")) > 72:
+        plain_password = plain_password[:72]
     return pwd_context.verify(plain_password, hashed_password)
-
 # ==============================
 # TEST USER CREATION (MOVE UP)
 # ==============================
