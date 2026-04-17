@@ -136,6 +136,32 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
+def create_test_user_on_startup():
+    db = SessionLocal()
+
+    try:
+        test_username = "admin"
+        test_password = "admin123"
+
+        existing_user = db.query(User).filter(User.username == test_username).first()
+
+        if not existing_user:
+            new_user = User(
+                id=str(uuid.uuid4()),
+                username=test_username,
+                password=hash_password_auth(test_password)
+            )
+
+            db.add(new_user)
+            db.commit()
+
+            print("✅ Test user created: admin / admin123")
+        else:
+            print("ℹ️ Test user already exists")
+
+    finally:
+        db.close()
+        
 # ==============================
 # SIGNUP API
 # ==============================
