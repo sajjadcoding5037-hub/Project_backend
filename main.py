@@ -81,6 +81,7 @@ def verify_token_auth(token: str):
 # FASTAPI APP
 # ==============================
 app = FastAPI()
+create_test_user_on_startup(
 
 # ==============================
 # CORS (Frontend Fix)
