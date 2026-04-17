@@ -12,7 +12,8 @@ import uuid
 # ==============================
 # CONFIG
 # ==============================
-DATABASE_URL = "postgresql://postgres:password@localhost:5432/mydb"
+DATABASE_URL = "postgresql://postgres:UdbbHUYlygeebUMuZbmOTHrEcOzHfRiq@postgres.railway.internal:5432/railway"
+
 
 SECRET_KEY = "super_secret_key"
 ALGORITHM = "HS256"
